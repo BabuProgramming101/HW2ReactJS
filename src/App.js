@@ -457,6 +457,17 @@ class App extends React.Component {
         modal.classList.remove("is-visible");
     }
 
+    handleUndoRedo = (event) => {
+        if(event.ctrlKey) {
+            if(event.keyCode === 90) {
+                this.undo();
+            }
+            else if (event.keyCode === 89) {
+                this.redo();
+            }
+        }
+    }
+
     setTitle = (newTitle) => {
         this.setState(prevState => ({
             currentList: prevState.currentList,
