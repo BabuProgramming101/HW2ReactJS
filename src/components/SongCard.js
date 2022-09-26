@@ -113,7 +113,7 @@ export default class SongCard extends React.Component {
                 //2) THE INDEX OF WHERE THE SONG IS LOCATED
                 //3) THE NEW TITLE, THE NEW ARTIST, AND THE NEW YOUTUBEID 
 
-                //DOUBLE CLICKING WILL OPEN UP A MODAL. AT THE SAME TIME, WE WANT TO SAVE ALL OF THE ORIGINAL SONG CARD DATA
+                //DOUBLE CLICKING WILL OPEN UP THE SONG TO EDIT THE MODAL
                 onDoubleClick={this.handleOriginalContent}   
             > 
             <span>        
