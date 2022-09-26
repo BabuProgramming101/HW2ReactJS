@@ -7,6 +7,7 @@ import jsTPS from './common/jsTPS.js';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
+import AddSong_Transaction from './transactions/AddSong_Transaction';
 import DeleteSong_Transaction from './transactions/DeleteSong_Transaction';
 import EditSong_Transaction from './transactions/EditSong_Transaction';
 
@@ -255,6 +256,26 @@ class App extends React.Component {
         this.setStateWithUpdatedList(list); //WE PROBABLY NEED TO INCLUDE THIS IN OUR OTHER METHODS 
     }
 
+    addSong = (initTitle, initArtist, initID) => {
+        let list = this.state.currentList;
+        let song = {initTitle, initArtist, initID};
+        song.title = initTitle;
+        song.artist = initArtist;
+        song.youTubeId = initID;
+        this.state.currentList.songs[this.getPlaylistSize()] = song;
+        this.setStateWithUpdatedList(list); //THIS ACTS LIKE THE UPDATE VIEW IN OUR HOMEWORK 1 (ALSO SAVES TO MEMORY IN LOCAL STORAGE)
+    }
+
+    addSongSpecific = (initTitle, initArtist, initID, initIndex) => {
+        let list = this.state.currentList;
+        let song = {initTitle, initArtist, initID};
+        song.title = initTitle;
+        song.artist = initArtist;
+        song.youTubeId = initID;
+        this.state.currentList.songs.splice(initIndex, 0, song);
+        this.setStateWithUpdatedList(list);
+    }
+
     // THIS FUNCTION ADDS A MoveSong_Transaction TO THE TRANSACTION STACK
     addMoveSongTransaction = (start, end) => {
         let transaction = new MoveSong_Transaction(this, start, end);
@@ -263,6 +284,10 @@ class App extends React.Component {
 
     //PARAMETERS SHOULD BE HERE 
     //WHEN WE UNDO THE TRANSACTION, WE ARE SIMPLY JUST REMOVING FROM THE END OF THE ARRAY 
+    addAddSongTransaction = () => {
+        let transaction = new AddSong_Transaction(this, "Untitled", "Unknown", "dQw4w9WgXcQ", this.getPlaylistSize());
+        this.tps.addTransaction(transaction);
+    }  
 
     addDeleteSongTransaction = () => {
         let songTitle = this.state.listSongMarkedForDeleting.title;
@@ -316,7 +341,6 @@ class App extends React.Component {
             this.db.mutationUpdateList(this.state.currentList);
         }
     }
-
     markListForDeletion = (keyPair) => {
         this.setState(prevState => ({ //this.setState forces a rerender 
             currentList: prevState.currentList,
@@ -456,6 +480,7 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }));
     }
+
 
     //UPON LAUNCH THE BUTTONS MUST BE PURELY DISABLED 
 
