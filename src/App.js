@@ -7,11 +7,13 @@ import jsTPS from './common/jsTPS.js';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
+import DeleteSong_Transaction from './transactions/DeleteSong_Transaction';
 import EditSong_Transaction from './transactions/EditSong_Transaction';
 
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from './components/DeleteListModal.js';
 import EditSongModal from './components/EditSongModal.js';
+import DeleteSongModal from './components/DeleteSongModal';
 
 // THESE REACT COMPONENTS ARE IN OUR UI
 import Banner from './components/Banner.js';
@@ -262,6 +264,16 @@ class App extends React.Component {
     //PARAMETERS SHOULD BE HERE 
     //WHEN WE UNDO THE TRANSACTION, WE ARE SIMPLY JUST REMOVING FROM THE END OF THE ARRAY 
 
+    addDeleteSongTransaction = () => {
+        let songTitle = this.state.listSongMarkedForDeleting.title;
+        let songArtist = this.state.listSongMarkedForDeleting.artist;
+        let songID = this.state.listSongMarkedForDeleting.youTubeId;
+        let songIndex = this.state.listSongIndex;
+        let transaction = new DeleteSong_Transaction(this, songTitle, songArtist, songID, songIndex);
+        this.tps.addTransaction(transaction);
+        this.hideDeleteSongModal();
+    }
+
     addEditSongTransaction = () => {
 
         //WE NEED TO STORE THE NEW INFORMATION BY USING THE OLD INFORMATION AS PARAMETERS AND THEN 
@@ -304,6 +316,7 @@ class App extends React.Component {
             this.db.mutationUpdateList(this.state.currentList);
         }
     }
+
     markListForDeletion = (keyPair) => {
         this.setState(prevState => ({ //this.setState forces a rerender 
             currentList: prevState.currentList,
@@ -317,6 +330,24 @@ class App extends React.Component {
 
     //USED TO OPEN UP THE MODAL FOR EDITING
 
+    markSongForDeleting = (song, index) => {
+        this.setState(prevState => ({ //this.setState forces a rerender 
+            currentList : prevState.currentList,
+            listSongMarkedForDeleting : {title: song.title, artist: song.artist, youTubeId: song.youTubeId},
+            listSongIndex : index - 1,
+            sessionData : prevState.sessionData
+        }), () => {
+            this.showDeleteSongModal();
+        });
+    }
+
+    deleteSong = (index) => {
+        let list = this.state.currentList;
+        this.state.currentList.songs.splice(index, 1);
+        this.setStateWithUpdatedList(list);
+    }
+
+    //WE WILL GET TO THIS LATER, BUT WE ARE ALMOST TOWARDS THE SOLUTION 
 
     retrieveOriginalSongInformation = (song, index) => {
      
@@ -392,6 +423,16 @@ class App extends React.Component {
         modal.classList.remove("is-visible");
     }
 
+    showDeleteSongModal() {
+        let modal = document.getElementById("delete-song-modal");
+        modal.classList.add("is-visible");
+    }
+
+    hideDeleteSongModal() {
+        let modal = document.getElementById("delete-song-modal");
+        modal.classList.remove("is-visible");
+    }
+
     setTitle = (newTitle) => {
         this.setState(prevState => ({
             currentList: prevState.currentList,
@@ -415,7 +456,6 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }));
     }
-
 
     //UPON LAUNCH THE BUTTONS MUST BE PURELY DISABLED 
 
@@ -465,6 +505,11 @@ class App extends React.Component {
                 <EditSongModal //WE NEED: 1) THE OLD SONG CONTENT AND 2) THE INDEX OF THE SONG (MAYBE)
                    editSongCallback = {this.addEditSongTransaction} 
                    hideEditSongCallback={this.hideEditSongModal}
+                />
+                <DeleteSongModal // WE NEED: 1) THE SONG AND 2) THE INDEX OF THE SONG
+                   song = {this.state.listSongMarkedForDeleting}
+                   hideDeleteSongModalCallback={this.hideDeleteSongModal}
+                   deleteSongCallback = {this.addDeleteSongTransaction}
                 />
             </div>
         );
