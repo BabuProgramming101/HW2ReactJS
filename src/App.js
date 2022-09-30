@@ -99,6 +99,7 @@ class App extends React.Component {
     // THIS FUNCTION BEGINS THE PROCESS OF DELETING A LIST.
     deleteList = (key) => {
         // IF IT IS THE CURRENT LIST, CHANGE THAT
+
         let newCurrentList = null;
         if (this.state.currentList) {
             if (this.state.currentList.key !== key) {
@@ -125,6 +126,14 @@ class App extends React.Component {
                 keyNamePairs: newKeyNamePairs
             }
         }), () => {
+            let addButton = document.getElementById("add-song-button");
+            let closeListButton = document.getElementById("close-button");
+            let undoButton = document.getElementById("undo-button");
+            let redoButton = document.getElementById("redo-button");
+            undoButton.className = "toolbar-button-disabled";
+            redoButton.className = "toolbar-button-disabled";
+            addButton.className = "toolbar-button-disabled";
+            closeListButton.className = "toolbar-button-disabled";
             // DELETING THE LIST FROM PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationDeleteList(key);
@@ -180,11 +189,6 @@ class App extends React.Component {
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
 
-        let undoButton = document.getElementById("undo-button");
-        let redoButton = document.getElementById("redo-button");
-        undoButton.className = "toolbar-button-disabled";
-        redoButton.className = "toolbar-button-disabled";
-
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
@@ -202,7 +206,7 @@ class App extends React.Component {
         let undoButton = document.getElementById("undo-button");
         let redoButton = document.getElementById("redo-button");
         undoButton.className = "toolbar-button-disabled";
-        redoButton.className = "toolbar-button-disabled";
+        redoButton.className = "toolbar-button-disabled"; 
 
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
@@ -263,6 +267,7 @@ class App extends React.Component {
         song.artist = initArtist;
         song.youTubeId = initID;
         this.state.currentList.songs[this.getPlaylistSize()] = song;
+        document.getElementById("undo-button").className = "toolbar-button-"; //FORCE THE UNDO BUTTON TO ACTIVATE  
         this.setStateWithUpdatedList(list); //THIS ACTS LIKE THE UPDATE VIEW IN OUR HOMEWORK 1 (ALSO SAVES TO MEMORY IN LOCAL STORAGE)
     }
 
@@ -426,39 +431,94 @@ class App extends React.Component {
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
     showDeleteListModal() {
+        document.getElementById("add-song-button").className = "toolbar-button-disabled";
+        document.getElementById("close-button").className = "toolbar-button-disabled";
+        document.getElementById("undo-button").className = "toolbar-button-disabled";
+        document.getElementById("redo-button").className = "toolbar-button-disabled";
         let modal = document.getElementById("delete-list-modal");
         modal.classList.add("is-visible");
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
-    hideDeleteListModal() {
+    hideDeleteListModal = () => {
+        document.getElementById("add-song-button").className = "toolbar-button-";
+        document.getElementById("close-button").className = "toolbar-button-";
+        if(this.tps.hasTransactionToUndo()) { 
+            document.getElementById("undo-button").className = "toolbar-button-";
+        } else {
+            document.getElementById("undo-button").className = "toolbar-button-disabled";
+        }
+        if(this.tps.hasTransactionToRedo()) {
+            document.getElementById("redo-button").className = "toolbar-button-";
+        }
+        else {
+            document.getElementById("redo-button").className = "toolbar-button-disabled";
+        }
         let modal = document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
     }
 
     //FUNCTION FOR SHOWING THE MODAL FOR PROMPTING THE USER TO SEE IF THEY WANNA EDIT THE SONG
     showEditSongModal() {
+        document.getElementById("add-song-button").className = "toolbar-button-disabled";
+        document.getElementById("close-button").className = "toolbar-button-disabled";
+        document.getElementById("undo-button").className = "toolbar-button-disabled";
+        document.getElementById("redo-button").className = "toolbar-button-disabled";
         let modal = document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");
     }
 
     //FUNCTION FOR HIDING THE MODAL
-    hideEditSongModal() {
+    hideEditSongModal = () => {
+        document.getElementById("add-song-button").className = "toolbar-button-";
+        document.getElementById("close-button").className = "toolbar-button-";
+        if(this.tps.hasTransactionToUndo()) { 
+            document.getElementById("undo-button").className = "toolbar-button-";
+        } else {
+            document.getElementById("undo-button").className = "toolbar-button-disabled";
+        }
+        if(this.tps.hasTransactionToRedo()) {
+            document.getElementById("redo-button").className = "toolbar-button-";
+        }
+        else {
+            document.getElementById("redo-button").className = "toolbar-button-disabled";
+        }
         let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
     }
 
     showDeleteSongModal() {
+        document.getElementById("add-song-button").className = "toolbar-button-disabled";
+        document.getElementById("close-button").className = "toolbar-button-disabled";
+        document.getElementById("undo-button").className = "toolbar-button-disabled";
+        document.getElementById("redo-button").className = "toolbar-button-disabled";
         let modal = document.getElementById("delete-song-modal");
         modal.classList.add("is-visible");
     }
 
-    hideDeleteSongModal() {
+    hideDeleteSongModal = () => {
+        document.getElementById("add-song-button").className = "toolbar-button-";
+        document.getElementById("close-button").className = "toolbar-button-";
+        if(this.tps.hasTransactionToUndo()) { 
+            document.getElementById("undo-button").className = "toolbar-button-";
+        } else {
+            document.getElementById("undo-button").className = "toolbar-button-disabled";
+        }
+        if(this.tps.hasTransactionToRedo()) {
+            document.getElementById("redo-button").className = "toolbar-button-";
+        }
+        else {
+            document.getElementById("redo-button").className = "toolbar-button-disabled";
+        }
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
     }
 
     handleUndoRedo = (event) => {
-        if(event.ctrlKey) {
+
+        let modalDeleteSong = document.getElementById("delete-song-modal");
+        let modalEditSong = document.getElementById("edit-song-modal");
+        let modalDeleteList = document.getElementById("delete-list-modal");
+        if(event.ctrlKey && !modalDeleteSong.classList.contains("is-visible") && !modalEditSong.classList.contains("is-visible") && !modalDeleteList.classList.contains("is-visible")) {
             if(event.keyCode === 90) {
                 this.undo();
             }
@@ -467,32 +527,7 @@ class App extends React.Component {
             }
         }
     }
-
-    setTitle = (newTitle) => {
-        this.setState(prevState => ({
-            currentList: prevState.currentList,
-            listNewSongTitle : {title : newTitle},
-            sessionData: this.state.sessionData
-        }));
-    }
-
-    setArtist = (newArtist) => {
-        this.setState(prevState => ({
-            currentList: prevState.currentList,
-            listNewSongArtist : {artist : newArtist},
-            sessionData: this.state.sessionData
-        }));
-    }
-
-    setID = (newID) => {
-        this.setState(prevState => ({
-            currentList: prevState.currentList,
-            listNewSongID : {youTubeId : newID},
-            sessionData: this.state.sessionData
-        }));
-    }
-
-
+    
     //UPON LAUNCH THE BUTTONS MUST BE PURELY DISABLED 
 
     render() {
@@ -501,7 +536,7 @@ class App extends React.Component {
         let canRedo = this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
         return (
-            <div id="root" onKeyDown={this.handleUndoRedo}>
+            <div id="root" onKeyDown={this.handleUndoRedo} tabIndex="1">
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
